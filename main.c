@@ -32,15 +32,15 @@ int main()
     int j = 0;
     short int o = 0;
 
-    gerarArquivoInt(arq, 10);
-    while(li < 10)
+    gerarArquivoInt(arq, 5000);
+    while(li < 5000)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-    quickSortExterno(arq, 0, 9, 3);
+    quickSortExterno(arq, 0, 4999, 80);
     li = 0;
-    while(li < 10)
+    while(li < 5000)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);

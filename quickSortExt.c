@@ -165,7 +165,7 @@ void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea)
      if(fim - inicio >= 1)
      {
          
-             particao(arq, inicio, fim, tamArea);
+             particao(arq, inicio, fim,&i,&j, tamArea);
              if((i - inicio) > (fim - j))
              { 
                  quickSortExterno(arq, j, fim, tamArea);

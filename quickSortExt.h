@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-
+#include <math.h>
 
 
 void lerSup(FILE *arqLS, int *reg, int *lS, int nBytes, short int *ordem);

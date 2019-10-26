@@ -1,5 +1,5 @@
 #include "quickSortExt.h"   
-//TESTADO
+//TESTADO OK
 void lerSup(FILE *arqLS, int *reg, int *lS, int nBytes, short int *ordem)
 {
     fseek(arqLS, *(lS)*nBytes, SEEK_SET);
@@ -7,7 +7,7 @@ void lerSup(FILE *arqLS, int *reg, int *lS, int nBytes, short int *ordem)
     (*lS)--;
     *ordem = 0;
 }
-//TESTADO
+//TESTADO OK
 void lerInf(FILE *arqLI, int *reg, int *lI, int nBytes, short int *ordem)
 {
     fseek(arqLI, *(lI)*nBytes, SEEK_SET);
@@ -15,21 +15,21 @@ void lerInf(FILE *arqLI, int *reg, int *lI, int nBytes, short int *ordem)
     (*lI)++;
     *ordem = 1;
 }
-//TESTADO
+//TESTADO OK
 void escSup(FILE *arqES, int *reg, int *eS, int nBytes)
 {
     fseek(arqES, *(eS)*nBytes, SEEK_SET);
     fwrite(reg, 1, nBytes, arqES);
     (*eS)--;
 }
-//TESTADO
+//TESTADO OK
 void escInf(FILE *arqEI, int *reg, int *eI, int nBytes)
 {
     fseek(arqEI, *(eI)*nBytes, SEEK_SET);
     fwrite(reg, nBytes, 1, arqEI);
     (*eI)++;
 }
-//TESTADO
+//TESTADO OK
 void inserirArea(int *area, int *reg, int *areaOcupada)
 {
     int aux;
@@ -47,6 +47,20 @@ void inserirArea(int *area, int *reg, int *areaOcupada)
     (*areaOcupada)++;
 }
 
+void imprimirArea(int *area, int areaOcupada, int lmi, int lms)
+{
+    int i = 0;
+
+    printf("Area = { ");
+    for(i = 0; i < areaOcupada; i++)
+        printf("%d ", area[i]);
+    printf("} limInf = %d\tlimSup = %d\n", lmi, lms);
+}
+void leituraOrdem(int ordem, int lS, int lI)
+{
+    ordem == 1? printf("(Lsup = %d)\t", lS) : printf("(Linf = %d)\t", lI);
+}
+//TESTADO OK
 void removerPrimArea(int *area, int *areaOcupada)
 {
     int i = 0;
@@ -76,7 +90,7 @@ int particao(FILE *arq,int inicio, int fim, int tamArea)
     
     int valor = 0;
 
-    while(lS > lI)
+    while(lS >= lI)
     {
         if(areaOcupada + 1 < tamArea)
         {
@@ -89,12 +103,18 @@ int particao(FILE *arq,int inicio, int fim, int tamArea)
         }
         else
         {
-            if(lI == eI)
+            if(lI == eI){
                 lerInf(arq, &valor, &lI, sizeof(int), &ordem);
-            else if(lS == eS)
+                printf("Leitura inferior = escrita inferior\n");
+                }
+            else if(lS == eS){
                 lerSup(arq, &valor, &lS, sizeof(int), &ordem);
+                printf("Leitura superior = escrita superior\n");
+            }
             else
             {
+                printf("Ordem alternada de leitura\n");
+                leituraOrdem(ordem, lS, lI);
                 if(ordem == 1)
                     lerSup(arq, &valor, &lS, sizeof(int), &ordem);
                 else
@@ -105,32 +125,54 @@ int particao(FILE *arq,int inicio, int fim, int tamArea)
             {
                 j = eS;
                 escSup(arq, &valor, &eS, sizeof(int));
-                
             }
-
             else if(valor < limInf)
             {
                 i = eI;
                 escInf(arq, &valor, &eI, sizeof(int));
             }
             else
+            {
                 inserirArea(area, &valor, &areaOcupada);
-
-            if((i - inicio) < (fim - j))
-            {
-                escInf(arq, &(area[0]), &eI, sizeof(int));
-                limInf = area[0];
-                removerPrimArea(area, &areaOcupada);
-            }
-            else
-            {
-                escSup(arq, &(area[areaOcupada]), &eS, sizeof(int));
-                limSup = area[areaOcupada];
-                areaOcupada--;
+                imprimirArea(area, areaOcupada, limInf, limSup);
+                if(eI - inicio < fim - eS) 
+                {
+                    escInf(arq, &(area[0]), &eI, sizeof(int));
+                    limInf = area[0];
+                    removerPrimArea(area, &areaOcupada);
+                }
+                else
+                {
+                    escSup(arq, &(area[areaOcupada-1]), &eS, sizeof(int));
+                    limSup = area[areaOcupada-1];
+                    areaOcupada--;
+                }
             }
         }
     }
-    for(k = 0; k < tamArea; k++)
+    // leituraOrdem(ordem, lS, lI);
+     imprimirArea(area, areaOcupada, limInf, limSup);
+    for(k = 0; k < areaOcupada; k++)
         escInf(arq, &(area[k]), &eI, sizeof(int));
     return 0;
 }
+
+// void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea)
+// {
+//     int i = inicio;
+//     int j = fim;
+//     while(fim - inicio >= 1)
+//     {
+//         if(fim - inicio <= tamArea)
+//             InsertionSort(arq, inicio, fim);
+//         else
+//         {
+//             particao(arq, inicio, fim, tamArea);
+//             if((i - inicio) > (fim - j))
+//                 quickSortExterno(arq, j, fim, tamArea);
+//             else
+//                 quickSortExterno(arq, inicio, i, tamArea);
+//         }
+//     }
+
+// }

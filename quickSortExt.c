@@ -157,22 +157,24 @@ int particao(FILE *arq,int inicio, int fim, int tamArea)
     return 0;
 }
 
-// void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea)
-// {
-//     int i = inicio;
-//     int j = fim;
-//     while(fim - inicio >= 1)
-//     {
-//         if(fim - inicio <= tamArea)
-//             InsertionSort(arq, inicio, fim);
-//         else
-//         {
-//             particao(arq, inicio, fim, tamArea);
-//             if((i - inicio) > (fim - j))
-//                 quickSortExterno(arq, j, fim, tamArea);
-//             else
-//                 quickSortExterno(arq, inicio, i, tamArea);
-//         }
-//     }
-
-// }
+void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea)
+ {
+     int i = inicio;
+     int j = fim;
+     if(fim - inicio >= 1)
+     {
+         
+             particao(arq, inicio, fim, tamArea);
+             if((i - inicio) > (fim - j))
+             { 
+                 quickSortExterno(arq, j, fim, tamArea);
+                 quickSortExterno(arq, inicio, i, tamArea);
+             }
+             else
+             {
+                 quickSortExterno(arq, inicio, i, tamArea);
+                 quickSortExterno(arq, j, fim, tamArea);
+             }
+         
+     }
+ }

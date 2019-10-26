@@ -30,15 +30,15 @@ int main()
     int li = 0;
     short int o = 0;
 
-    gerarArquivoInt(arq, 7);
-    while(li < 7)
+    gerarArquivoInt(arq, 10);
+    while(li < 10)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-    particao(arq, 0, 6, 3);
+    quickSortExterno(arq, 0, 9, 3);
     li = 0;
-    while(li < 7)
+    while(li < 10)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);

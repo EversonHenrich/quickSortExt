@@ -28,21 +28,23 @@ int main()
     FILE *arq = fopen("test1.bin", "rb+");
     int value = 0;
     int li = 0;
+    int i = 0;
+    int j = 0;
     short int o = 0;
 
-    gerarArquivoInt(arq, 7);
-    while(li < 7)
+    gerarArquivoInt(arq, 10);
+    while(li < 10)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-    particao(arq, 0, 6, 3);
+    particao(arq, 0, 9, &i, &j, 3);
     li = 0;
-    while(li < 7)
+    while(li < 10)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-
+    printf("i = %d, j = %d\n", i, j);
     return 0;
 }

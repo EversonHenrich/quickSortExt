@@ -69,14 +69,12 @@ void removerPrimArea(int *area, int *areaOcupada)
     (*areaOcupada)--;
 }
 
-int particao(FILE *arq,int inicio, int fim, int tamArea)
+int particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea)
 {
 
     int *area = (int*)calloc(tamArea, sizeof(int));
     int areaOcupada = 0;
 
-    int i = inicio - 1;
-    int j = fim + 1;
     int k = 0;
 
     int lI = inicio;
@@ -89,6 +87,9 @@ int particao(FILE *arq,int inicio, int fim, int tamArea)
     int limSup = INT32_MAX;
     
     int valor = 0;
+
+    (*i) = inicio - 1;
+    (*j) = fim + 1;
 
     while(lS >= lI)
     {
@@ -123,12 +124,12 @@ int particao(FILE *arq,int inicio, int fim, int tamArea)
             
             if(valor > limSup)
             {
-                j = eS;
+                (*j) = eS;
                 escSup(arq, &valor, &eS, sizeof(int));
             }
             else if(valor < limInf)
             {
-                i = eI;
+                (*i) = eI;
                 escInf(arq, &valor, &eI, sizeof(int));
             }
             else

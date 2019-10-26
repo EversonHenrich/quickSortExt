@@ -28,6 +28,8 @@ int main()
     FILE *arq = fopen("test1.bin", "rb+");
     int value = 0;
     int li = 0;
+    int i = 0;
+    int j = 0;
     short int o = 0;
 
     gerarArquivoInt(arq, 10);
@@ -43,6 +45,6 @@ int main()
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-
+    printf("i = %d, j = %d\n", i, j);
     return 0;
 }

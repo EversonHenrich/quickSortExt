@@ -10,4 +10,4 @@ void escSup(FILE *arqES, int *reg, int *eS, int nBytes);
 void escInf(FILE *arqEI, int *reg, int *eI, int nBytes);
 void inserirArea(int *reg, int *area, int *areaOcupada);
 void removerPrimArea(int *area, int *areaOcupada);
-int particao(FILE *arq,int inicio, int fim, int tamArea);
+int particao(FILE *arq,int inicio, int fim, int *i, int*j, int tamArea);

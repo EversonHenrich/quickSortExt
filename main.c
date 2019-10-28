@@ -18,10 +18,12 @@ void gerarArquivoInt(FILE *arq, int nElem)
     for(i = 0; i < nElem; i++)
     {
         // value[i] = nElem - i;
-        value[i] = rand()%100;
+        value[i] = rand()%1000;
     }
     fwrite(value, sizeof(int), nElem, arq);
 }
+
+
 
 int main()
 {
@@ -32,19 +34,21 @@ int main()
     int j = 0;
     short int o = 0;
 
-    gerarArquivoInt(arq, 5000);
-    while(li < 5000)
+    gerarArquivoInt(arq, 100);
+    printf("Arquivo antes do quickSortExterno\n");
+    while(li < 100)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-    quickSortExterno(arq, 0, 4999, 80);
+    quickSortExterno(arq, 0, 99, 20);
     li = 0;
-    while(li < 5000)
+    printf("==========================\n");
+    printf("Arquivo apos quickSortExterno\n");
+    while(li < 100)
     {
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-    printf("i = %d, j = %d\n", i, j);
     return 0;
 }

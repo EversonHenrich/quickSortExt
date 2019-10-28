@@ -1,0 +1,5 @@
+main.o
+quickSortExt.o
+quicksortExterno.exe
+test1.bin
+.vscode/settings.json

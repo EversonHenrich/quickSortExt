@@ -1,9 +1,9 @@
 #include "quickSortExt.h"   
 
-void lerSup(FILE *arqlS, int *reg, int *lS, int nBytes, short int *ordem)
+void lerSup(FILE *arqlS, void *reg, int *lS, int nBytes, short int *ordem)
 {
     //posiciona o cursor em lS*nBytes distante do início do arquivo
-    //E armazena em reg o valor contido nessa posição
+    //E armazena em reg o registro contido nessa posição
     fseek(arqlS, *(lS)*nBytes, SEEK_SET);
     fread(reg, nBytes, 1, arqlS);
     //decrementa o indicador
@@ -12,10 +12,10 @@ void lerSup(FILE *arqlS, int *reg, int *lS, int nBytes, short int *ordem)
     *ordem = 0;
 }
 
-void lerInf(FILE *arqlI, int *reg, int *lI, int nBytes, short int *ordem)
+void lerInf(FILE *arqlI, void *reg, int *lI, int nBytes, short int *ordem)
 {
     //posiciona o cursor em lI*nBytes distante do início do arquivo
-    //E armazena em reg o valor contido nessa posição
+    //E armazena em reg o registro contido nessa posição
     fseek(arqlI, *(lI)*nBytes, SEEK_SET);
     fread(reg, nBytes, 1, arqlI);
     //incrementa o indicador
@@ -24,7 +24,7 @@ void lerInf(FILE *arqlI, int *reg, int *lI, int nBytes, short int *ordem)
     *ordem = 1;
 }
 
-void escSup(FILE *arqES, int *reg, int *eS, int nBytes)
+void escSup(FILE *arqES, void *reg, int *eS, int nBytes)
 {
     //posiciona o cursor em eS*nBytes distante do início do arquivo
     //E escreve nessa posição o conteúdo de reg
@@ -34,7 +34,7 @@ void escSup(FILE *arqES, int *reg, int *eS, int nBytes)
     (*eS)--;
 }
 
-void escInf(FILE *arqEI, int *reg, int *eI, int nBytes)
+void escInf(FILE *arqEI, void *reg, int *eI, int nBytes)
 {
     //posiciona o cursor em eI*nBytes distante do início do arquivo
     //E escreve nessa posição o conteúdo de reg
@@ -44,41 +44,39 @@ void escInf(FILE *arqEI, int *reg, int *eI, int nBytes)
     (*eI)++;
 }
 
-void inserirArea(int *area, int *reg, int *areaOcupada)
+void inserirArea(void *area, int *areaOcupada, void *reg,int nBytes, int(*comp)(void*,void*))
 {
     int i = *areaOcupada; 
-    //Armazena na memória primária de forma ordenada
-    //Enquanto não encontrar um elemento menor que reg ou chegar ao inicio do vetor
-    //Desloca o elemento verificado em uma posição para direita
+    //Insere o registro de forma ordenada na memória primária
+    //Deslocando para direita os registros de valor maior que o registro que será inserido
     while(i > 0)
     {
-        if(area[i-1] > *reg)
-            area[i] = area[i-1];
+        if(comp(area + ((i-1)*nBytes), reg) == 1)
+            memcpy(area + (i*nBytes), area + ((i-1)*nBytes), nBytes);
         else    
             break;
         i--;
-    }
-    //Armazena reg na posição 
+    } 
     //incrementa areaOcupada
-    area[i] = *reg;
+    memcpy(area + (i*nBytes), reg, nBytes);
     (*areaOcupada)++;
 }
 
-void rmvPrimeiroArea(int *area, int *areaOcupada)
+void rmvPrimeiroArea(void *area, int *areaOcupada, int nBytes)
 {
     int i = 0;
-    //Remove o primeiro elemento da memória primária
+    //Remove o primeiro registro da memória primária
     //Desloca o vetor em uma posição para esquerda
     for(i = 0;i < *areaOcupada; i++)
-        area[i] = area[i+1];
+        memcpy(area + (i*nBytes), area + ((i+1)*nBytes), nBytes);
     //Decrementa areaOcupada
     (*areaOcupada)--;
 }
 
-void particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea)
+void particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea, int nBytes, int(*comp)(void*,void*))
 {
     //aloca espaço na memória primária
-    int *area = (int*)calloc(tamArea, sizeof(int));
+    void *area = calloc(tamArea, nBytes);
     int areaOcupada = 0;
 
     //variável de índice
@@ -96,13 +94,17 @@ void particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea)
     unsigned short int ordem = 1;
     
     //Armazenam os limites superiores e inferiores da memória primária
-    int limInf = INT32_MIN;
-    int limSup = INT32_MAX;
+    void *limInf = calloc(1, nBytes);
+    void *limSup = calloc(1, nBytes);
+    //Flag que indica se limSup teve seu valor alterado
+    short int lmSupDif = 0;
+    //Flag que indica se limInf teve seu valor alterado
+    short int lmInfDif = 0;
     
-    //Armazena o valor lido/escrito
-    int valor = 0;
+    //Armazena o registro lido/escrito
+    void *registro = calloc(1, nBytes);
 
-    //Indicam a posição da área ordenada
+    //Indicam a posição da área ordenada no arquivo
     (*i) = inicio - 1;
     (*j) = fim + 1;
 
@@ -113,95 +115,99 @@ void particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea)
             //Preenche a área na memória principal até areaOcupada = tamArea - 1
             //Lendo de forma alternada entre Leitura Superior e Leitura Inferior
             if(ordem == 1)
-                lerSup(arq, &valor, &lS, sizeof(int), &ordem);
+                lerSup(arq, registro, &lS, nBytes, &ordem);
             else
-                lerInf(arq, &valor, &lI, sizeof(int), &ordem);
+                lerInf(arq, registro, &lI, nBytes, &ordem);
             
-            inserirArea(area, &valor, &areaOcupada);
+            inserirArea(area, &areaOcupada, registro, nBytes, comp);
         }
         //areaOcupada = tamArea - 1
         else
         {
             //Interrompe, se necessário, a ordem alternada de leitura para evitar que dados sejam sobrescritos
             if(lI == eI)
-                lerInf(arq, &valor, &lI, sizeof(int), &ordem);
+                lerInf(arq, registro, &lI, nBytes, &ordem);
             else if(lS == eS)
-                lerSup(arq, &valor, &lS, sizeof(int), &ordem);
+                lerSup(arq, registro, &lS, nBytes, &ordem);
             else
             {
                 //Ordem alternada de leitura
                 if(ordem == 1)
-                    lerSup(arq, &valor, &lS, sizeof(int), &ordem);
+                    lerSup(arq, registro, &lS, nBytes, &ordem);
                 else
-                    lerInf(arq, &valor, &lI, sizeof(int), &ordem);
+                    lerInf(arq, registro, &lI, nBytes, &ordem);
             }
             //Verifica se o valor lido está dentro dos limites de valor da memória primária
             //Se não tiver será escrito na memória secundária sem ser armazenado na memória primária
-            if(valor > limSup)
+            if((lmSupDif == 1) && (comp(registro, limSup) == 1))
             {
                 (*j) = eS;
-                escSup(arq, &valor, &eS, sizeof(int));
+                escSup(arq, registro, &eS, nBytes);
             }
-            else if(valor < limInf)
+            else if((lmInfDif == 1) && (comp(registro, limInf) == -1))
             {
                 (*i) = eI;
-                escInf(arq, &valor, &eI, sizeof(int));
+                escInf(arq, registro, &eI, nBytes);
             }
             else
             {
                 //Valor dentro dos limites superior e inferior
                 //armazena na memória primária
-                inserirArea(area, &valor, &areaOcupada);
+                inserirArea(area, &areaOcupada, registro, nBytes, comp);
                 //memória primária cheia
                 if(eI - inicio < fim - eS) 
                 {
-                    //Se a area inferior for menor remove o menor elemento da memória primária
-                    //Escreve esse elemento na memória secundária
-                    //atribui a limInf o valor desse elemento
-                    escInf(arq, &(area[0]), &eI, sizeof(int));
-                    limInf = area[0];
-                    rmvPrimeiroArea(area, &areaOcupada);
+                    //Se a área a esquerda for menor remove o menor registro da memória primária
+                    //Escreve esse registro na memória secundária
+                    //atribui a limInf o valor desse registro
+                    escInf(arq, area, &eI, nBytes);
+                    memcpy(limInf, area, nBytes);
+                    //Muda flag para 1(valor alterado)
+                    lmInfDif = 1;
+                    rmvPrimeiroArea(area, &areaOcupada, nBytes);
                 }
                 else
                 {
-                    //senão remove o maior elemento da memória primária 
-                    //Escreve esse elemento na memória secundária
-                    //atribui a limSup o valor desse elemento
-                    escSup(arq, &(area[areaOcupada-1]), &eS, sizeof(int));
-                    limSup = area[areaOcupada-1];
+                    //senão remove o registro de maior valor da memória primária 
+                    //Escreve esse registro na memória secundária
+                    //atribui a limSup o valor desse registro
+                    escSup(arq, area + ((areaOcupada-1)*nBytes), &eS, nBytes);
+                    memcpy(limSup, area + ((areaOcupada-1)*nBytes), nBytes);
+                    //Muda flag para 1(valor alterado)
+                    lmSupDif = 1;
                     areaOcupada--;
                 }
             }
         }
     }
     //Fim da partição
-    //Escreve no arquivo enquanto houver elementos na memória primária
-    //Escrita realizada na posição de escrita inferior
+    //Escreve no arquivo enquanto houver registros na memória primária
+    //Escrita realizada na posição indicada por eI
     for(k = 0; k < areaOcupada; k++)
-        escInf(arq, &(area[k]), &eI, sizeof(int));
+        escInf(arq, area + (k*nBytes), &eI, nBytes);
 }
 
-void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea)
+void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea, int nBytes, int (comp)(void*,void*))
  {
     int i = inicio;
     int j = fim;
-    //Se a área tiver mais que 1 elemento
+    //Se a área tiver mais que 1 registro
     if(fim - inicio > 1)
     {
         //chama partição para a área do arquivo
-        particao(arq, inicio, fim, &i, &j, tamArea);
-        //Verifica qual das áreas desordenadas é menor
+        particao(arq, inicio, fim, &i, &j, tamArea, nBytes, comp);
+        //Verifica qual das áreas não-ordenadas é menor
         //Chama recursivamente quickSortExterno para essa área
         //Chama recursivamente quickSortExterno para a outra área
         if((i - inicio) > (fim - j))
         { 
-            quickSortExterno(arq, j, fim, tamArea);
-            quickSortExterno(arq, inicio, i, tamArea);
+            quickSortExterno(arq, j, fim, tamArea, nBytes, comp);
+            quickSortExterno(arq, inicio, i, tamArea, nBytes, comp);
         }
         else
         {
-            quickSortExterno(arq, inicio, i, tamArea);
-            quickSortExterno(arq, j, fim, tamArea);
+            quickSortExterno(arq, inicio, i, tamArea, nBytes, comp);
+            quickSortExterno(arq, j, fim, tamArea, nBytes, comp);
         }
     
     }

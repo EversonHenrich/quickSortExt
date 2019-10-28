@@ -18,10 +18,12 @@ void gerarArquivoInt(FILE *arq, int nElem)
     for(i = 0; i < nElem; i++)
     {
         // value[i] = nElem - i;
-        value[i] = rand()%100;
+        value[i] = rand()%1000;
     }
     fwrite(value, sizeof(int), nElem, arq);
 }
+
+
 
 int main()
 {
@@ -45,6 +47,5 @@ int main()
         lerInf(arq, &value, &li, sizeof(int), &o);
         printf("%d - \t%d\n", li, value);
     }
-    printf("i = %d, j = %d\n", i, j);
     return 0;
 }

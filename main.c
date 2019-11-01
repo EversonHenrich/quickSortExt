@@ -5,15 +5,19 @@
 #include <time.h>
 
 typedef struct {
-    int a;
-}teste;
+    int matricula;
+    char nome[20];
+}Aluno;
 
 
-int compara(teste *a, teste *b)
+int compara(void *a, void *b)
 {
-    if(a->a == b->a)
+    Aluno* elemento1 = (Aluno*)a;
+    Aluno* elemento2 = (Aluno*)b;
+    
+    if(elemento1->matricula == elemento2->matricula)
         return 0;
-    else if(a->a > b->a)
+    else if(elemento1->matricula > elemento2->matricula)
         return 1;
     else
         return -1;
@@ -23,16 +27,17 @@ int compara(teste *a, teste *b)
 int gerarArquivoInt(FILE *arq, int nElem)
 {
     int i = 0;
-    teste *value = (teste*)calloc(nElem, sizeof(teste));
+    char c;
+    Aluno *value = (Aluno*)calloc(nElem, sizeof(Aluno));
 
     srand(time(NULL));
     rewind(arq);
 
     for(i = 0; i < nElem; i++)
     {
-        value[i].a = rand()%1000;
+        value[i].matricula = rand()%1000;
     }
-    return fwrite(value, sizeof(teste), nElem, arq);
+    return fwrite(value, sizeof(Aluno), nElem, arq);
 }
 
 
@@ -40,7 +45,7 @@ int gerarArquivoInt(FILE *arq, int nElem)
 int main()
 {
     FILE *arq = fopen("test1.bin", "wb+");
-    teste value;
+    Aluno value;
     int li = 0;
     int i = 0;
     int j = 0;
@@ -51,11 +56,11 @@ int main()
 
     while(li < 50)
     {
-        lerInf(arq, (void*)(&value), &li, sizeof(teste), &o);
-        printf("%d - \t%d\n", li, value.a);
+        lerInf(arq, (void*)(&value), &li, sizeof(Aluno), &o);
+        printf("%d - \t%d\n", li, value.matricula);
     }
 
-    quickSortExterno(arq, 0, 49, 15, sizeof(teste), compara);
+    quickSortExterno(arq, 0, 49, 15, sizeof(Aluno), compara);
 
     li = 0;
     printf("==========================\n");
@@ -63,8 +68,8 @@ int main()
 
     while(li < 50)
     {
-        lerInf(arq, (void*)(&value), &li, sizeof(teste), &o);
-        printf("%d - \t%d\n", li, value.a);
+        lerInf(arq, (void*)(&value), &li, sizeof(Aluno), &o);
+        printf("%d - \t%d\n", li, value.matricula);
     }
     
     return 0;

@@ -104,9 +104,6 @@ void particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea, int nB
     //Armazena o registro lido/escrito
     void *registro = calloc(1, nBytes);
 
-    //Indicam a posição da área ordenada no arquivo
-    (*i) = inicio - 1;
-    (*j) = fim + 1;
 
     while(lS >= lI)
     {
@@ -189,8 +186,8 @@ void particao(FILE *arq,int inicio, int fim, int *i, int *j, int tamArea, int nB
 
 void quickSortExterno(FILE *arq, int inicio, int fim, int tamArea, int nBytes, int (comp)(void*,void*))
  {
-    int i = inicio;
-    int j = fim;
+    int i = inicio - 1;
+    int j = fim + 1;
     //Se a área tiver mais que 1 registro
     if(fim - inicio > 1)
     {
